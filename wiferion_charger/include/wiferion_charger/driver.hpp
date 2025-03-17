@@ -370,8 +370,8 @@ namespace wiferion_charger
           // Gain: 0.02 A, Offset: 0, Unsigned (Example 3123 = 62.46 A)
           unsigned char ref_charge_current_high;
           // Reference charge current/voltage nibbles
-          unsigned char ref_charge_curr_nibble:4;
           unsigned char ref_charge_volt_nibble:4;
+          unsigned char ref_charge_curr_nibble:4;
           // Reference charge voltage low
           unsigned char ref_charge_voltage_low;
           // BMS Type
@@ -397,6 +397,92 @@ namespace wiferion_charger
         Values getValues();
       };
 
+      class StatHeatsinkTemperature: public Frame
+      {
+      public:
+        struct Field
+        {
+          // Reserved
+          unsigned char reserved_0;
+          unsigned char reserved_1;
+          unsigned char reserved_2;
+          unsigned char reserved_3;
+          unsigned char reserved_4;
+          unsigned char reserved_5;
+          // Temperature in C
+          // Gain: 0.75, Offset: -40, Unsigned.
+          // Min: -40 C, Max: 150 C
+          // Example 86 = 24.5 C, 0xFF = Invalid Value
+          unsigned char temp;
+          // Reserved
+          unsigned char reserved_6;
+        };
+        Field field_;
+
+        struct Values{
+          float heatsink_temperature;
+        };
+
+        StatHeatsinkTemperature(): Frame() {};
+        Values getValues();
+      };
+
+      class StatCoilTemperature: public Frame
+      {
+      public:
+        struct Field
+        {
+          // Temperature in C
+          // Gain: 0.75, Offset: -40, Unsigned.
+          // Min: -40 C, Max: 150 C
+          // Example 86 = 24.5 C, 0xFF = Invalid Value
+          unsigned char temp;
+          // Reserved
+          unsigned char reserved_0;
+          unsigned char reserved_1;
+          unsigned char reserved_2;
+          unsigned char reserved_3;
+          unsigned char reserved_4;
+          unsigned char reserved_5;
+          unsigned char reserved_6;
+        };
+        Field field_;
+
+        struct Values{
+          float coil_temperature;
+        };
+
+        StatCoilTemperature(): Frame() {};
+        Values getValues();
+      };
+
+      class StatStatus: public Frame
+      {
+      public:
+        struct Field
+        {
+          // Reserved
+          unsigned char reserved_0;
+          unsigned char reserved_1;
+          unsigned char reserved_2;
+          unsigned char reserved_3;
+          unsigned char reserved_4;
+          unsigned char reserved_5;
+          // Grid RMS voltage
+          // Gain: 0.01 V, Offset 0, unsigned
+          unsigned char grid_rms_voltage_high;
+          unsigned char grid_rms_voltage_low;
+        };
+        Field field_;
+
+        struct Values{
+          float grid_rms_voltage;
+        };
+
+        StatStatus(): Frame() {};
+        Values getValues();
+      };
+
       WiferionCharger();
       void copyData(std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
       void processMessage(unsigned long id, std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
@@ -412,6 +498,11 @@ namespace wiferion_charger
       Error error_;
       Version version_;
       Config config_;
+      SerialNumber stat_serial_number_;
+      Version stat_version_;
+      StatHeatsinkTemperature stat_heatsink_temperature_;
+      StatCoilTemperature stat_coil_temperature_;
+      StatStatus stat_status_;
   };
 }
 

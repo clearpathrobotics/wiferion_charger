@@ -7,6 +7,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Error.msg"
   "msg/State.msg"
   "msg/Status.msg"
+  "msg/StationaryState.msg"
  )
 
 ament_package()

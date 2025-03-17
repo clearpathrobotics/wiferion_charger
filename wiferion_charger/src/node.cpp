@@ -47,6 +47,7 @@ WiferionNode::WiferionNode(const std::string node_name)
   pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("status", 10);
   pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("error", 10);
   pubState_ = this->create_publisher<wiferion_interfaces::msg::State>("state", 10);
+  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("stat_state", 10);
 
   // Initialize Variables
   recv_msg_.reset(new can_msgs::msg::Frame());
@@ -137,8 +138,40 @@ void WiferionNode::run()
     msg.hf2_temperature = terminal_temperature.hf2_temperature;
     msg.positive_temperature = terminal_temperature.positive_temperature;
     msg.negative_temperature = terminal_temperature.negative_temperature;
+    // Config
+    WiferionCharger::Config::Values config = wiferion_.config_.getValues();
+    msg.ref_charge_current = config.ref_charge_current;
+    msg.ref_charge_voltage = config.ref_charge_voltage;
+    msg.bms_type = config.bms_type;
     // Publish
     pubState_->publish(msg);
+  }
+  if(wiferion_.stat_serial_number_.available_ &
+    wiferion_.stat_version_.available_ &
+    wiferion_.stat_heatsink_temperature_.available_ &
+    wiferion_.stat_coil_temperature_.available_ &
+    wiferion_.stat_status_.available_)
+  {
+    wiferion_interfaces::msg::StationaryState msg;
+    // Version
+    WiferionCharger::Version::Values version = wiferion_.stat_version_.getValues();
+    msg.version_revision = version.revision;
+    msg.version_minor = version.minor;
+    msg.version_major = version.major;
+    // SerialNumber
+    WiferionCharger::SerialNumber::Values serial_number = wiferion_.stat_serial_number_.getValues();
+    msg.serial_number = serial_number.serial;
+    // Heatsink Temperature
+    WiferionCharger::StatHeatsinkTemperature::Values heatsink_temperature = wiferion_.stat_heatsink_temperature_.getValues();
+    msg.heatsink_temperature = heatsink_temperature.heatsink_temperature;
+    // Coil Temperature
+    WiferionCharger::StatCoilTemperature::Values coil_temperature = wiferion_.stat_coil_temperature_.getValues();
+    msg.coil_temperature = coil_temperature.coil_temperature;
+    // Grid RMS Voltage
+    WiferionCharger::StatStatus::Values stat_status = wiferion_.stat_status_.getValues();
+    msg.grid_rms_voltage = stat_status.grid_rms_voltage;
+    // Publish
+    pubStatState_->publish(msg);
   }
 }
 

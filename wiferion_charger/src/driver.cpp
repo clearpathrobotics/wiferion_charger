@@ -35,7 +35,7 @@ namespace wiferion_charger
 
 WiferionCharger::WiferionCharger()
 {
-  debug_ = false;
+  debug_ = true;
   charger_status_.debug_ = debug_;
   serial_number_.debug_ = debug_;
   heatsink_temperature_.debug_ = debug_;
@@ -77,7 +77,8 @@ void WiferionCharger::processMessage(unsigned long id, std::array<unsigned char,
           frame = &error_;
           break;
         case WIFERION_MOB_STAT_SN:
-          std::cout << "Message ID: " << std::hex << id << std::endl;
+          if(debug_) std::cout << "STAT_SN: Message ID: " << std::hex << id << std::endl;
+          frame = &stat_serial_number_;
           break;
         case WIFERION_MOB_SW:
           frame = &version_;
@@ -86,12 +87,20 @@ void WiferionCharger::processMessage(unsigned long id, std::array<unsigned char,
           frame = &config_;
           break;
         case WIFERION_MOB_STAT_STATUS:
+          if(debug_) std::cout << "STAT_STATUS: Message ID: " << std::hex << id << std::endl;
+          frame = &stat_status_;
           break;
         case WIFERION_MOB_STAT_SW:
+          if(debug_) std::cout << "STAT_SW: Message ID: " << std::hex << id << std::endl;
+          frame = &stat_version_;
           break;
         case WIFERION_MOB_STAT_TEMP:
+          if(debug_) std::cout << "STAT_TEMP: Message ID: " << std::hex << id << std::endl;
+          frame = &stat_heatsink_temperature_;
           break;
         case WIFERION_MOB_STAT_TEMP_2:
+          if(debug_) std::cout << "STAT_TEMP_2: Message ID: " << std::hex << id << std::endl;
+          frame = &stat_coil_temperature_;
           break;
       }
       break;
@@ -313,7 +322,61 @@ WiferionCharger::Config::Values WiferionCharger::Config::getValues()
   {
     std::cout << "Reference charge current: " << values.ref_charge_current << std::endl;
     std::cout << "Reference charge voltage: " << values.ref_charge_voltage << std::endl;
-    std::cout << "BMS type: " << std::hex << values.bms_type << std::endl;
+    std::cout << "BMS type: " << std::hex << int(values.bms_type) << std::endl;
+    printData();
+    std::cout << std::endl;
+  }
+  return values;
+}
+
+WiferionCharger::StatHeatsinkTemperature::Values WiferionCharger::StatHeatsinkTemperature::getValues()
+{
+  available_ = false;
+  // Copy
+  std::memcpy(&field_, &data_, WIFERION_CAN_DATA_LENGTH);
+  // Re-interpret and store
+  WiferionCharger::StatHeatsinkTemperature::Values values;
+  values.heatsink_temperature = convertTemperature(field_.temp);
+  // Debug Log
+  if(debug_)
+  {
+    std::cout << "Stationary Heatsink Temperature: " << std::dec << values.heatsink_temperature << std::endl;
+    printData();
+    std::cout << std::endl;
+  }
+  return values;
+}
+
+WiferionCharger::StatCoilTemperature::Values WiferionCharger::StatCoilTemperature::getValues()
+{
+  available_ = false;
+  // Copy
+  std::memcpy(&field_, &data_, WIFERION_CAN_DATA_LENGTH);
+  // Re-interpret and store
+  WiferionCharger::StatCoilTemperature::Values values;
+  values.coil_temperature = convertTemperature(field_.temp);
+  // Debug Log
+  if(debug_)
+  {
+    std::cout << "Stationary Coil Temperature: " << std::dec << values.coil_temperature << std::endl;
+    printData();
+    std::cout << std::endl;
+  }
+  return values;
+}
+
+WiferionCharger::StatStatus::Values WiferionCharger::StatStatus::getValues()
+{
+  available_ = false;
+  // Copy
+  std::memcpy(&field_, &data_, WIFERION_CAN_DATA_LENGTH);
+  // Re-interpret and store
+  WiferionCharger::StatStatus::Values values;
+  values.grid_rms_voltage = 0.01 * ((field_.grid_rms_voltage_high << 8) |field_.grid_rms_voltage_low);
+  // Debug Log
+  if(debug_)
+  {
+    std::cout << "Stationary Grid RMS Voltage: " << std::dec << values.grid_rms_voltage << std::endl;
     printData();
     std::cout << std::endl;
   }

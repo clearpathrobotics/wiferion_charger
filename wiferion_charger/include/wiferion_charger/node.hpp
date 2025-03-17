@@ -30,6 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "wiferion_interfaces/msg/status.hpp"
 #include "wiferion_interfaces/msg/error.hpp"
 #include "wiferion_interfaces/msg/state.hpp"
+#include "wiferion_interfaces/msg/stationary_state.hpp"
 
 namespace wiferion_charger
 {
@@ -55,6 +56,7 @@ private:
   rclcpp::Publisher<wiferion_interfaces::msg::Status>::SharedPtr pubStatus_;
   rclcpp::Publisher<wiferion_interfaces::msg::Error>::SharedPtr pubError_;
   rclcpp::Publisher<wiferion_interfaces::msg::State>::SharedPtr pubState_;
+  rclcpp::Publisher<wiferion_interfaces::msg::StationaryState>::SharedPtr pubStatState_;
 };
 
 }
