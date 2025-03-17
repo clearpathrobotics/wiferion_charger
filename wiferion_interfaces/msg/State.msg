@@ -1,0 +1,17 @@
+# Wiferion Charger State
+
+uint32 serial_number
+uint32 version_revision
+uint32 version_major
+uint32 version_minor
+
+float32 heatsink_temperature
+float32 coil_temperature
+float32 hf1_temperature
+float32 hf2_temperature
+float32 positive_temperature
+float32 negative_temperature
+
+float32 ref_charger_current
+float32 ref_charger_voltage
+uint8 bms_type
