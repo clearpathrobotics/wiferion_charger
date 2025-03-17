@@ -43,6 +43,11 @@ WiferionNode::WiferionNode(const std::string node_name)
   this->get_parameter("canbus_dev", canbus_dev_);
   this->get_parameter("frequency", freq_);
 
+  // Publishers
+  pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("status", 10);
+  pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("error", 10);
+  pubState_ = this->create_publisher<wiferion_interfaces::msg::State>("state", 10);
+
   // Initialize Variables
   recv_msg_.reset(new can_msgs::msg::Frame());
 
@@ -65,7 +70,75 @@ void WiferionNode::run()
   // Process received messages
   while (interface_->recv(recv_msg_))
   {
-    wiferion_.processMessage(*recv_msg_);
+    if(recv_msg_->dlc == WIFERION_CAN_DATA_LENGTH)
+    {
+      wiferion_.processMessage(recv_msg_->id, recv_msg_->data);
+    }
+  }
+  // Check and publish ChargerStatus field
+  if(wiferion_.charger_status_.available_)
+  {
+    WiferionCharger::ChargerStatus::Values status = wiferion_.charger_status_.getValues();
+    wiferion_interfaces::msg::Status msg;
+    msg.output_voltage = status.output_voltage;
+    msg.output_current = status.output_current;
+    msg.state = status.charger_state;
+    pubStatus_->publish(msg);
+  }
+  // Check and publish Error field
+  if(wiferion_.error_.available_)
+  {
+    WiferionCharger::Error::Values errors = wiferion_.error_.getValues();
+    wiferion_interfaces::msg::Error msg;
+    msg.over_temperature = errors.over_temperature;
+    msg.comm_timeout = errors.comm_timeout;
+    msg.comm_crc_error = errors.comm_crc_error;
+    msg.batt_temp_limit = errors.batt_temp_limit;
+    msg.pre_charge_time_limit = errors.pre_charge_time_limit;
+    msg.volt_temp_error = errors.volt_temp_error;
+    msg.can_message = errors.can_message;
+    msg.grid_error = errors.grid_error;
+    msg.se_coil_disconnected = errors.se_coil_disconnected;
+    msg.se_over_temperature = errors.se_over_temperature;
+    msg.bad_coil_position = errors.bad_coil_position;
+    msg.fan_rpm_low = errors.fan_rpm_low;
+    msg.delivered_current_limit = errors.delivered_current_limit;
+    msg.charge_current_limit = errors.charge_current_limit;
+    msg.batt_current_limit = errors.batt_current_limit;
+    msg.charging_disabled = errors.charging_disabled;
+    msg.power_derating = errors.power_derating;
+    msg.max_power_derating = errors.max_power_derating;
+    msg.temperature_derating = errors.temperature_derating;
+    pubError_->publish(msg);
+  }
+  // Check and publish Version, SerialNumber, HeatsinkTemperature, TerminalTemperature fields
+  if(wiferion_.version_.available_ &
+    wiferion_.serial_number_.available_ &
+    wiferion_.heatsink_temperature_.available_ &
+    wiferion_.terminal_temperature_.available_ &
+    wiferion_.config_.available_)
+  {
+    wiferion_interfaces::msg::State msg;
+    // Version
+    WiferionCharger::Version::Values version = wiferion_.version_.getValues();
+    msg.version_revision = version.revision;
+    msg.version_minor = version.minor;
+    msg.version_major = version.major;
+    // SerialNumber
+    WiferionCharger::SerialNumber::Values serial_number = wiferion_.serial_number_.getValues();
+    msg.serial_number = serial_number.serial;
+    // Heatsink Temperature
+    WiferionCharger::HeatsinkTemperature::Values heatsink_temperature = wiferion_.heatsink_temperature_.getValues();
+    msg.heatsink_temperature = heatsink_temperature.heatsink_temperature;
+    // Terminal Temperature
+    WiferionCharger::TerminalTemperature::Values terminal_temperature = wiferion_.terminal_temperature_.getValues();
+    msg.coil_temperature = terminal_temperature.coil_temperature;
+    msg.hf1_temperature = terminal_temperature.hf1_temperature;
+    msg.hf2_temperature = terminal_temperature.hf2_temperature;
+    msg.positive_temperature = terminal_temperature.positive_temperature;
+    msg.negative_temperature = terminal_temperature.negative_temperature;
+    // Publish
+    pubState_->publish(msg);
   }
 }
 

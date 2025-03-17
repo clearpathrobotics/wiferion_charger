@@ -27,6 +27,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <rclcpp/rclcpp.hpp>
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
 #include "wiferion_charger/driver.hpp"
+#include "wiferion_interfaces/msg/status.hpp"
+#include "wiferion_interfaces/msg/error.hpp"
+#include "wiferion_interfaces/msg/state.hpp"
 
 namespace wiferion_charger
 {
@@ -48,6 +51,10 @@ private:
 
   rclcpp::Node::SharedPtr node_handle_;
   rclcpp::TimerBase::SharedPtr run_timer_;
+
+  rclcpp::Publisher<wiferion_interfaces::msg::Status>::SharedPtr pubStatus_;
+  rclcpp::Publisher<wiferion_interfaces::msg::Error>::SharedPtr pubError_;
+  rclcpp::Publisher<wiferion_interfaces::msg::State>::SharedPtr pubState_;
 };
 
 }

@@ -72,9 +72,11 @@ namespace wiferion_charger
       {
       public:
         bool available_;
+        bool debug_;
         std::array<unsigned char, 8> data_;
-        Frame(): available_(false){};
+        Frame(): available_(false), debug_(true){};
         void printData();
+        float convertTemperature(unsigned char temperature);
       };
 
       class ChargerStatus: public Frame
@@ -306,6 +308,7 @@ namespace wiferion_charger
         Field field_;
 
         struct Values{
+          bool over_temperature;
           bool comm_timeout;
           bool comm_crc_error;
           bool batt_temp_limit;
@@ -319,6 +322,7 @@ namespace wiferion_charger
           bool fan_rpm_low;
           bool delivered_current_limit;
           bool charge_current_limit;
+          bool batt_current_limit;
           bool charging_disabled;
           bool power_derating;
           bool max_power_derating;
@@ -348,62 +352,58 @@ namespace wiferion_charger
         Field field_;
 
         struct Values{
-          int revision;
-          int minor;
-          int major;
+          unsigned int revision;
+          unsigned int minor;
+          unsigned int major;
         };
 
         Version(): Frame() {};
         Values getValues();
       };
 
-      struct Config
+      class Config: public Frame
       {
-        // Reference charge current
-        // Gain: 0.02 A, Offset: 0, Unsigned (Example 3123 = 62.46 A)
-        unsigned char ref_charge_current_high;
-        // Reference charge current/voltage nibbles
-        unsigned char ref_charge_curr_volt_nibble;
-        // Reference charge voltage low
-        unsigned char ref_charge_voltage_low;
-        // BMS Type
-        // 0x0: None
-        // 0x1: Generic
-        // 0x2: SCiB
-        // 0x3: Reserved
-        // 0x4: etaSTORE Type B
-        // 0xFF: Unkown
-        unsigned char bms_type;
-        // Reserved
-        unsigned long reserved;
-      };
+      public:
+        struct Field
+        {
+          // Reference charge current
+          // Gain: 0.02 A, Offset: 0, Unsigned (Example 3123 = 62.46 A)
+          unsigned char ref_charge_current_high;
+          // Reference charge current/voltage nibbles
+          unsigned char ref_charge_curr_nibble:4;
+          unsigned char ref_charge_volt_nibble:4;
+          // Reference charge voltage low
+          unsigned char ref_charge_voltage_low;
+          // BMS Type
+          // 0x0: None
+          // 0x1: Generic
+          // 0x2: SCiB
+          // 0x3: Reserved
+          // 0x4: etaSTORE Type B
+          // 0xFF: Unkown
+          unsigned char bms_type;
+          // Reserved
+          unsigned long reserved;
+        };
+        Field field_;
 
-      struct StatStatus
-      {
-        // Reserved
-        unsigned long reserved_0;
-        unsigned int reserved_1;
-        // Grid RMS voltage
-        // Gain: 0.01 V, Offset 0, Unsigned (Example 23123 = 231.23 V)
-        unsigned char grid_rms_voltage_high;
-        unsigned char grid_rms_voltage_low;
+        struct Values{
+          float ref_charge_current;
+          float ref_charge_voltage;
+          unsigned char bms_type;
+        };
+
+        Config(): Frame() {};
+        Values getValues();
       };
 
       WiferionCharger();
-      void processMessage(can_msgs::msg::Frame msg);
-      void processChargerStatus(can_msgs::msg::Frame msg);
-      void processSerialNumber(can_msgs::msg::Frame msg);
-      void processHeatsinkTemperature(can_msgs::msg::Frame msg);
-      void processTerminalTemperature(can_msgs::msg::Frame msg);
-
-      void copyData(std::array<unsigned char, 8> data);
-
-      void processFrameData(WiferionCharger::Frame &frame, std::array<unsigned char, 8> data);
+      void copyData(std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
+      void processMessage(unsigned long id, std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
+      void processFrameData(WiferionCharger::Frame &frame, std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
 
       bool debug_;
 
-    private:
-      std::queue<can_msgs::msg::Frame> can_queue_;
       // Fields
       ChargerStatus charger_status_;
       SerialNumber serial_number_;
@@ -411,6 +411,7 @@ namespace wiferion_charger
       TerminalTemperature terminal_temperature_;
       Error error_;
       Version version_;
+      Config config_;
   };
 }
 

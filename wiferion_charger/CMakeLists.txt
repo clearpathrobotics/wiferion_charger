@@ -11,6 +11,7 @@ find_package(can_msgs REQUIRED)
 find_package(clearpath_ros2_socketcan_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(wiferion_interfaces REQUIRED)
 
 include_directories(
   include
@@ -25,6 +26,7 @@ set(DEPENDENCIES
   "clearpath_ros2_socketcan_interface"
   "rclcpp"
   "sensor_msgs"
+  "wiferion_interfaces"
 )
 
 ament_target_dependencies(wiferion_driver ${DEPENDENCIES})
