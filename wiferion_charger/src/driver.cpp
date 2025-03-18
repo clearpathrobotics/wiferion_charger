@@ -43,6 +43,7 @@ WiferionCharger::WiferionCharger()
   error_.debug_ = debug_;
   version_.debug_ = debug_;
   config_.debug_ = debug_;
+  disable_charging_.debug_ = debug_;
 }
 
 void WiferionCharger::processMessage(unsigned long id, std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data)
@@ -381,6 +382,47 @@ WiferionCharger::StatStatus::Values WiferionCharger::StatStatus::getValues()
     std::cout << std::endl;
   }
   return values;
+}
+
+WiferionCharger::DisableCharging::Values WiferionCharger::DisableCharging::getValues()
+{
+  available_ = false;
+  // Copy
+  std::memcpy(&field_, &data_, WIFERION_CAN_DATA_LENGTH);
+  // Re-interpret and store
+  WiferionCharger::DisableCharging::Values values;
+  values.charging_disabled = WIFERION_CHARGING_DISABLED == field_.signature;
+  // Debug Log
+  if(debug_)
+  {
+    std::cout << "Disable Charging: " << int(values.charging_disabled) << std::endl;
+    printData();
+    std::cout << std::endl;
+  }
+  return values;
+}
+
+std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> WiferionCharger::DisableCharging::getMessageData(bool disable_charging)
+{
+  // Create data array
+  std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data;
+  // Modify field
+  if(disable_charging)
+  {
+    field_.signature = WIFERION_CHARGING_DISABLED;
+  }
+  else
+  {
+    field_.signature = WIFERION_CHARGING_ENABLED;
+  }
+  // Copy
+  std::memcpy(&data, &field_, WIFERION_CAN_DATA_LENGTH);
+  return data;
+}
+
+unsigned long WiferionCharger::DisableCharging::getMessageID()
+{
+  return WIFERION_BMS_DISABLE_CHARGING;
 }
 
 }

@@ -25,6 +25,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define WIFERION_CHARGER_NODE_H
 
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
 #include "wiferion_charger/driver.hpp"
 #include "wiferion_interfaces/msg/status.hpp"
@@ -57,6 +58,10 @@ private:
   rclcpp::Publisher<wiferion_interfaces::msg::Error>::SharedPtr pubError_;
   rclcpp::Publisher<wiferion_interfaces::msg::MobileState>::SharedPtr pubState_;
   rclcpp::Publisher<wiferion_interfaces::msg::StationaryState>::SharedPtr pubStatState_;
+
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subDisable_;
+
+  void subDisableCallback(const std_msgs::msg::Bool::SharedPtr msg);
 };
 
 }

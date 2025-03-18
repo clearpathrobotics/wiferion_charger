@@ -56,6 +56,8 @@
 #define WIFERION_MOB_STAT_SW 0x11
 #define WIFERION_MOB_STAT_TEMP 0x13
 #define WIFERION_MOB_STAT_TEMP_2 0x14
+#define WIFERION_CHARGING_DISABLED 0xAA
+#define WIFERION_CHARGING_ENABLED 0x00
 
 #include <queue>
 
@@ -483,6 +485,29 @@ namespace wiferion_charger
         Values getValues();
       };
 
+      class DisableCharging: public Frame
+      {
+      public:
+        struct Field
+        {
+          // Signature
+          // send 0xAA to disable charging
+          unsigned char signature;
+          unsigned char reserved_0;
+          unsigned short reserved_1;
+          unsigned long reserved_2;
+        };
+        Field field_;
+
+        struct Values{
+          bool charging_disabled;
+        };
+        DisableCharging(): Frame() {};
+        Values getValues();
+        std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> getMessageData(bool disable_charging);
+        unsigned long getMessageID();
+      };
+
       WiferionCharger();
       void copyData(std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
       void processMessage(unsigned long id, std::array<unsigned char, WIFERION_CAN_DATA_LENGTH> data);
@@ -503,6 +528,9 @@ namespace wiferion_charger
       StatHeatsinkTemperature stat_heatsink_temperature_;
       StatCoilTemperature stat_coil_temperature_;
       StatStatus stat_status_;
+
+      // Commands
+      DisableCharging disable_charging_;
   };
 }
 

@@ -49,6 +49,12 @@ WiferionNode::WiferionNode(const std::string node_name)
   pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("mobile_state", 10);
   pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("stationary_state", 10);
 
+  // Subscribers
+  subDisable_ = this->create_subscription<std_msgs::msg::Bool>(
+    "disable_charging",
+    10,
+    std::bind(&WiferionNode::subDisableCallback, this, std::placeholders::_1));
+
   // Initialize Variables
   recv_msg_.reset(new can_msgs::msg::Frame());
 
@@ -76,7 +82,7 @@ void WiferionNode::run()
       wiferion_.processMessage(recv_msg_->id, recv_msg_->data);
     }
   }
-  // Check and publish ChargerStatus field
+  // Charger Status
   if(wiferion_.charger_status_.available_)
   {
     WiferionCharger::ChargerStatus::Values status = wiferion_.charger_status_.getValues();
@@ -86,7 +92,7 @@ void WiferionNode::run()
     msg.state = status.charger_state;
     pubStatus_->publish(msg);
   }
-  // Check and publish Error field
+  // Error
   if(wiferion_.error_.available_)
   {
     WiferionCharger::Error::Values errors = wiferion_.error_.getValues();
@@ -112,7 +118,7 @@ void WiferionNode::run()
     msg.temperature_derating = errors.temperature_derating;
     pubError_->publish(msg);
   }
-  // Check and publish Version, SerialNumber, HeatsinkTemperature, TerminalTemperature fields
+  // Mobile State
   if(wiferion_.version_.available_ &
     wiferion_.serial_number_.available_ &
     wiferion_.heatsink_temperature_.available_ &
@@ -146,6 +152,7 @@ void WiferionNode::run()
     // Publish
     pubState_->publish(msg);
   }
+  // Stationary State
   if(wiferion_.stat_serial_number_.available_ &
     wiferion_.stat_version_.available_ &
     wiferion_.stat_heatsink_temperature_.available_ &
@@ -173,6 +180,16 @@ void WiferionNode::run()
     // Publish
     pubStatState_->publish(msg);
   }
+}
+
+void WiferionNode::subDisableCallback(const std_msgs::msg::Bool::SharedPtr msg)
+{
+  can_msgs::msg::Frame can_msg;
+  can_msg.is_extended = true;
+  can_msg.id = wiferion_.disable_charging_.getMessageID();
+  can_msg.data = wiferion_.disable_charging_.getMessageData(msg->data);
+  can_msg.dlc = sizeof(can_msg.data);
+  interface_->queue(can_msg);
 }
 
 }
