@@ -46,8 +46,8 @@ WiferionNode::WiferionNode(const std::string node_name)
   // Publishers
   pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("status", 10);
   pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("error", 10);
-  pubState_ = this->create_publisher<wiferion_interfaces::msg::State>("state", 10);
-  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("stat_state", 10);
+  pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("mobile_state", 10);
+  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("stationary_state", 10);
 
   // Initialize Variables
   recv_msg_.reset(new can_msgs::msg::Frame());
@@ -119,7 +119,7 @@ void WiferionNode::run()
     wiferion_.terminal_temperature_.available_ &
     wiferion_.config_.available_)
   {
-    wiferion_interfaces::msg::State msg;
+    wiferion_interfaces::msg::MobileState msg;
     // Version
     WiferionCharger::Version::Values version = wiferion_.version_.getValues();
     msg.version_revision = version.revision;
