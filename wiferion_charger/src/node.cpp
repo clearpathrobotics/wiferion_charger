@@ -44,14 +44,14 @@ WiferionNode::WiferionNode(const std::string node_name)
   this->get_parameter("frequency", freq_);
 
   // Publishers
-  pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("status", 10);
-  pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("error", 10);
-  pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("mobile_state", 10);
-  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("stationary_state", 10);
+  pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("~/status", 10);
+  pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("~/error", 10);
+  pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("~/mobile_state", 10);
+  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("~/stationary_state", 10);
 
   // Subscribers
   subDisable_ = this->create_subscription<std_msgs::msg::Bool>(
-    "disable_charging",
+    "~/disable_charging",
     10,
     std::bind(&WiferionNode::subDisableCallback, this, std::placeholders::_1));
 
