@@ -185,6 +185,7 @@ void WiferionNode::run()
 void WiferionNode::subDisableCallback(const std_msgs::msg::Bool::SharedPtr msg)
 {
   can_msgs::msg::Frame can_msg;
+  can_msg.frame_id = "can";
   can_msg.is_extended = true;
   can_msg.id = wiferion_.disable_charging_.getMessageID();
   can_msg.data = wiferion_.disable_charging_.getMessageData(msg->data);
