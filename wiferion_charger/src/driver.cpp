@@ -35,7 +35,7 @@ namespace wiferion_charger
 
 WiferionCharger::WiferionCharger()
 {
-  debug_ = true;
+  debug_ = WIFERION_DEBUG;
   charger_status_.debug_ = debug_;
   serial_number_.debug_ = debug_;
   heatsink_temperature_.debug_ = debug_;
