@@ -43,6 +43,11 @@ WiferionCharger::WiferionCharger()
   error_.debug_ = debug_;
   version_.debug_ = debug_;
   config_.debug_ = debug_;
+  stat_serial_number_.debug_ = debug_;
+  stat_version_.debug_ = debug_;
+  stat_heatsink_temperature_.debug_ = debug_;
+  stat_coil_temperature_.debug_ = debug_;
+  stat_status_.debug_ = debug_;
   disable_charging_.debug_ = debug_;
 }
 
@@ -78,7 +83,6 @@ void WiferionCharger::processMessage(unsigned long id, std::array<unsigned char,
           frame = &error_;
           break;
         case WIFERION_MOB_STAT_SN:
-          if(debug_) std::cout << "STAT_SN: Message ID: " << std::hex << id << std::endl;
           frame = &stat_serial_number_;
           break;
         case WIFERION_MOB_SW:
@@ -88,19 +92,15 @@ void WiferionCharger::processMessage(unsigned long id, std::array<unsigned char,
           frame = &config_;
           break;
         case WIFERION_MOB_STAT_STATUS:
-          if(debug_) std::cout << "STAT_STATUS: Message ID: " << std::hex << id << std::endl;
           frame = &stat_status_;
           break;
         case WIFERION_MOB_STAT_SW:
-          if(debug_) std::cout << "STAT_SW: Message ID: " << std::hex << id << std::endl;
           frame = &stat_version_;
           break;
         case WIFERION_MOB_STAT_TEMP:
-          if(debug_) std::cout << "STAT_TEMP: Message ID: " << std::hex << id << std::endl;
           frame = &stat_heatsink_temperature_;
           break;
         case WIFERION_MOB_STAT_TEMP_2:
-          if(debug_) std::cout << "STAT_TEMP_2: Message ID: " << std::hex << id << std::endl;
           frame = &stat_coil_temperature_;
           break;
       }
