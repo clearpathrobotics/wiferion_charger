@@ -62,7 +62,7 @@ def generate_launch_description():
         executable='wiferion_node',
         package='wiferion_charger',
         parameters=[
-            {'canbus_dev': 'vcan1'}
+            {'canbus_dev': canbus_dev}
         ],
         namespace=namespace,
         output="screen",
