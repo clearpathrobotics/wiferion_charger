@@ -33,7 +33,7 @@ namespace wiferion_charger
 {
 
 WiferionNode::WiferionNode(const std::string node_name)
-: Node(node_name)
+  : Node(node_name)
 {
   // Declare Parameters
   this->declare_parameter("canbus_dev", "vcan0");
@@ -47,29 +47,30 @@ WiferionNode::WiferionNode(const std::string node_name)
   pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("~/status", 10);
   pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("~/error", 10);
   pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("~/mobile_state", 10);
-  pubStatState_ = this->create_publisher<wiferion_interfaces::msg::StationaryState>("~/stationary_state", 10);
+  pubStatState_ =
+    this->create_publisher<wiferion_interfaces::msg::StationaryState>("~/stationary_state", 10);
 
   // Subscribers
   subDisable_ = this->create_subscription<std_msgs::msg::Bool>(
-    "~/disable_charging",
-    10,
-    std::bind(&WiferionNode::subDisableCallback, this, std::placeholders::_1));
+                  "~/disable_charging",
+                  10,
+                  std::bind(&WiferionNode::subDisableCallback, this, std::placeholders::_1));
 
   // Initialize Variables
   recv_msg_.reset(new can_msgs::msg::Frame());
 
   // Node handle
-  node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
+  node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *) {});
 
   // Socket
   interface_.reset(new clearpath_ros2_socketcan_interface::SocketCANInterface(
-    canbus_dev_, node_handle_));
+                     canbus_dev_, node_handle_));
 
   interface_->startSendTimer(1);
 
   // Run loop
   run_timer_ = this->create_wall_timer(
-    std::chrono::milliseconds(1000 / freq_), std::bind(&WiferionNode::run, this));
+                 std::chrono::milliseconds(1000 / freq_), std::bind(&WiferionNode::run, this));
 }
 
 void WiferionNode::run()
@@ -77,13 +78,13 @@ void WiferionNode::run()
   // Process received messages
   while (interface_->recv(recv_msg_))
   {
-    if(recv_msg_->dlc == WIFERION_CAN_DATA_LENGTH)
+    if (recv_msg_->dlc == WIFERION_CAN_DATA_LENGTH)
     {
       wiferion_.processMessage(recv_msg_->id, recv_msg_->data);
     }
   }
   // Charger Status
-  if(wiferion_.charger_status_.available_)
+  if (wiferion_.charger_status_.available_)
   {
     WiferionCharger::ChargerStatus::Values status = wiferion_.charger_status_.getValues();
     wiferion_interfaces::msg::Status msg;
@@ -93,7 +94,7 @@ void WiferionNode::run()
     pubStatus_->publish(msg);
   }
   // Error
-  if(wiferion_.error_.available_)
+  if (wiferion_.error_.available_)
   {
     WiferionCharger::Error::Values errors = wiferion_.error_.getValues();
     wiferion_interfaces::msg::Error msg;
@@ -119,11 +120,11 @@ void WiferionNode::run()
     pubError_->publish(msg);
   }
   // Mobile State
-  if(wiferion_.version_.available_ &
-    wiferion_.serial_number_.available_ &
-    wiferion_.heatsink_temperature_.available_ &
-    wiferion_.terminal_temperature_.available_ &
-    wiferion_.config_.available_)
+  if (wiferion_.version_.available_ &
+      wiferion_.serial_number_.available_ &
+      wiferion_.heatsink_temperature_.available_ &
+      wiferion_.terminal_temperature_.available_ &
+      wiferion_.config_.available_)
   {
     wiferion_interfaces::msg::MobileState msg;
     // Version
@@ -135,10 +136,12 @@ void WiferionNode::run()
     WiferionCharger::SerialNumber::Values serial_number = wiferion_.serial_number_.getValues();
     msg.serial_number = serial_number.serial;
     // Heatsink Temperature
-    WiferionCharger::HeatsinkTemperature::Values heatsink_temperature = wiferion_.heatsink_temperature_.getValues();
+    WiferionCharger::HeatsinkTemperature::Values heatsink_temperature =
+      wiferion_.heatsink_temperature_.getValues();
     msg.heatsink_temperature = heatsink_temperature.heatsink_temperature;
     // Terminal Temperature
-    WiferionCharger::TerminalTemperature::Values terminal_temperature = wiferion_.terminal_temperature_.getValues();
+    WiferionCharger::TerminalTemperature::Values terminal_temperature =
+      wiferion_.terminal_temperature_.getValues();
     msg.coil_temperature = terminal_temperature.coil_temperature;
     msg.hf1_temperature = terminal_temperature.hf1_temperature;
     msg.hf2_temperature = terminal_temperature.hf2_temperature;
@@ -153,11 +156,11 @@ void WiferionNode::run()
     pubState_->publish(msg);
   }
   // Stationary State
-  if(wiferion_.stat_serial_number_.available_ &
-    wiferion_.stat_version_.available_ &
-    wiferion_.stat_heatsink_temperature_.available_ &
-    wiferion_.stat_coil_temperature_.available_ &
-    wiferion_.stat_status_.available_)
+  if (wiferion_.stat_serial_number_.available_ &
+      wiferion_.stat_version_.available_ &
+      wiferion_.stat_heatsink_temperature_.available_ &
+      wiferion_.stat_coil_temperature_.available_ &
+      wiferion_.stat_status_.available_)
   {
     wiferion_interfaces::msg::StationaryState msg;
     // Version
@@ -169,10 +172,12 @@ void WiferionNode::run()
     WiferionCharger::SerialNumber::Values serial_number = wiferion_.stat_serial_number_.getValues();
     msg.serial_number = serial_number.serial;
     // Heatsink Temperature
-    WiferionCharger::StatHeatsinkTemperature::Values heatsink_temperature = wiferion_.stat_heatsink_temperature_.getValues();
+    WiferionCharger::StatHeatsinkTemperature::Values heatsink_temperature =
+      wiferion_.stat_heatsink_temperature_.getValues();
     msg.heatsink_temperature = heatsink_temperature.heatsink_temperature;
     // Coil Temperature
-    WiferionCharger::StatCoilTemperature::Values coil_temperature = wiferion_.stat_coil_temperature_.getValues();
+    WiferionCharger::StatCoilTemperature::Values coil_temperature =
+      wiferion_.stat_coil_temperature_.getValues();
     msg.coil_temperature = coil_temperature.coil_temperature;
     // Grid RMS Voltage
     WiferionCharger::StatStatus::Values stat_status = wiferion_.stat_status_.getValues();
@@ -193,7 +198,7 @@ void WiferionNode::subDisableCallback(const std_msgs::msg::Bool::SharedPtr msg)
   interface_->queue(can_msg);
 }
 
-}
+}  // namespace wiferion_charger
 
 int main(int argc, char * argv[])
 {

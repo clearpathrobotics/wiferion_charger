@@ -24,5 +24,5 @@ uint8 NONE=0
 uint8 GENERIC=1
 uint8 SCIB=2
 uint8 ETASTORE=4
-uint8 UNKOWN=0xFF
+uint8 UNKNOWN=0xFF
 uint8 bms_type
