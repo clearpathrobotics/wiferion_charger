@@ -21,8 +21,11 @@ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTE
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WIFERION_CHARGER_NODE_H
-#define WIFERION_CHARGER_NODE_H
+#ifndef WIFERION_CHARGER__NODE_HPP_
+#define WIFERION_CHARGER__NODE_HPP_
+
+#include <string>
+#include <memory>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -40,7 +43,7 @@ class WiferionNode
   : public rclcpp::Node
 {
 public:
-  WiferionNode(const std::string node_name);
+  explicit WiferionNode(const std::string node_name);
   void run();
 
 private:
@@ -64,6 +67,6 @@ private:
   void subDisableCallback(const std_msgs::msg::Bool::SharedPtr msg);
 };
 
-}
+}  // namespace wiferion_charger
 
-#endif // WIFERION_CHARGER_NODE_H
+#endif  // WIFERION_CHARGER__NODE_HPP_
