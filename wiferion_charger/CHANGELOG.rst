@@ -2,8 +2,8 @@
 Changelog for package wiferion_charger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.1 (2025-04-08)
+------------------
 * Fix/dep with ci (`#1 <https://github.com/clearpathrobotics/wiferion_charger/issues/1>`_)
   * Fixed dependency.
   * Added CI, issues template and codeowners.
