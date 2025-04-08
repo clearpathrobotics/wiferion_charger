@@ -2,8 +2,8 @@
 Changelog for package wiferion_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-08)
+------------------
 * Split state between receiver and transmitter
 * Add stationary message data
 * Add interfaces

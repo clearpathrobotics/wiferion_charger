@@ -2,8 +2,8 @@
 Changelog for package wiferion_charger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-08)
+------------------
 * Pass canbus_dev argument to node
 * Install folder
 * Disable debug logging on all fields
