@@ -2,6 +2,11 @@
 Changelog for package wiferion_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add ament_cmake to package.xml
+* Contributors: Luis Camero
+
 2.3.1 (2025-04-08)
 ------------------
 * Fix/dep with ci (`#1 <https://github.com/clearpathrobotics/wiferion_charger/issues/1>`_)
