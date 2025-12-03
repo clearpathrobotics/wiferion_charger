@@ -49,7 +49,6 @@ public:
 private:
   std::string canbus_dev_;
   int freq_;
-  int charger_id_;
 
   WiferionCharger wiferion_;
   std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface_;

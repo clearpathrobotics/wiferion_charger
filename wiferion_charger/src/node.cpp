@@ -38,12 +38,10 @@ WiferionNode::WiferionNode(const std::string node_name)
   // Declare Parameters
   this->declare_parameter("canbus_dev", "vcan0");
   this->declare_parameter("frequency", 10);
-  this->declare_parameter("charger_ID", 0);
 
   // Get Parameters
   this->get_parameter("canbus_dev", canbus_dev_);
   this->get_parameter("frequency", freq_);
-  this->get_parameter("charger_ID", charger_id_);
 
   // Publishers
   pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("~/status", 10);
