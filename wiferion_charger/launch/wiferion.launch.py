@@ -24,10 +24,17 @@ def generate_launch_description():
         'canbus_dev', default_value='vcan1', description='CAN bus device'
     )
 
+    arg_id = DeclareLaunchArgument(
+        'charger_ID',
+        default_value='0',
+        description='Charger ID'
+    )
+
     # Launch Configurations
     namespace = LaunchConfiguration('namespace')
     launch_gateway = LaunchConfiguration('launch_gateway')
     canbus_dev = LaunchConfiguration('canbus_dev')
+    charger_id = LaunchConfiguration('charger_ID')
 
     # Clearpath ROS2 Socketcan Interface
     pkg_clearpath_ros2_socketcan_interface = FindPackageShare('clearpath_ros2_socketcan_interface')
@@ -61,13 +68,14 @@ def generate_launch_description():
         name='wiferion_node',
         executable='wiferion_node',
         package='wiferion_charger',
-        parameters=[{'canbus_dev': canbus_dev}],
+        parameters=[{'canbus_dev': canbus_dev}, {'charger_ID': id}],
         namespace=namespace,
         output='screen',
     )
 
     ld = LaunchDescription()
     ld.add_action(arg_canbus_dev)
+    ld.add_action(arg_id)
     ld.add_action(arg_launch_gateway)
     ld.add_action(arg_namespace)
     ld.add_action(launch_receiver)
