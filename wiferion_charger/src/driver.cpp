@@ -58,52 +58,58 @@ void WiferionCharger::processMessage(uint32_t id,
   // Mask the message ID
   int masked_id = id & WIFERION_MOB_ID_MASK;
   int mob_id = id & WIFERION_MOB_LOWER_ID_MASK;
-  int charger_offset = (charger_id & 0x0F) << 8;
+  unsigned int charger_offset = (charger_id & 0x0F) << 8; //0xXX00
+  //will be used to check that it is the messages coming form this node specifically
+  unsigned int charger_node_id = charger_id;
 
   // Select appropriate fields to parse
   switch (masked_id)
   {
-  case WIFERION_MOB_STATUS_CHARGER_ID:
-    if ((id & 0xFFFF) == (WIFERION_MOB_STATUS_CHARGER_LOWER_ID + charger_id))
+  case WIFERION_MOB_STATUS_CHARGER_ID: //0x18FF
+    if ((id & 0xFFFF) == (WIFERION_MOB_STATUS_CHARGER_LOWER_ID + charger_node_id)) //0x50E5 +XX
     {
       frame = &charger_status_;
     }
     break;
   case WIFERION_MOB_ID:
-    switch (mob_id)
+    if ((id & 0xFF00) == charger_offset) //0xXX00
     {
-    case WIFERION_MOB_SN:
-      frame = &serial_number_;
-      break;
-    case WIFERION_MOB_TEMP:
-      frame = &heatsink_temperature_;
-      break;
-    case WIFERION_MOB_TEMP_2:
-      frame = &terminal_temperature_;
-      break;
-    case WIFERION_MOB_ERROR:
-      frame = &error_;
-      break;
-    case WIFERION_MOB_STAT_SN:
-      frame = &stat_serial_number_;
-      break;
-    case WIFERION_MOB_SW:
-      frame = &version_;
-      break;
-    case WIFERION_MOB_CONFIG:
-      frame = &config_;
-      break;
-    case WIFERION_MOB_STAT_STATUS:
-      frame = &stat_status_;
-      break;
-    case WIFERION_MOB_STAT_SW:
-      frame = &stat_version_;
-      break;
-    case WIFERION_MOB_STAT_TEMP:
-      frame = &stat_heatsink_temperature_;
-      break;
-    case WIFERION_MOB_STAT_TEMP_2:
-      frame = &stat_coil_temperature_;
+      switch (mob_id)
+      {
+      case WIFERION_MOB_SN:
+        frame = &serial_number_;
+        break;
+      case WIFERION_MOB_TEMP: 
+        frame = &heatsink_temperature_;
+        break;
+      case WIFERION_MOB_TEMP_2:
+        frame = &terminal_temperature_;
+        break;
+      case WIFERION_MOB_ERROR:
+        frame = &error_;
+        break;
+      case WIFERION_MOB_STAT_SN:
+        frame = &stat_serial_number_;
+        break;
+      case WIFERION_MOB_SW:
+        frame = &version_;
+        break;
+      case WIFERION_MOB_CONFIG:
+        frame = &config_;
+        break;
+      case WIFERION_MOB_STAT_STATUS:
+        frame = &stat_status_;
+        break;
+      case WIFERION_MOB_STAT_SW:
+        frame = &stat_version_;
+        break;
+      case WIFERION_MOB_STAT_TEMP:
+        frame = &stat_heatsink_temperature_;
+        break;
+      case WIFERION_MOB_STAT_TEMP_2:
+        frame = &stat_coil_temperature_;
+        break;
+      }
       break;
     }
     break;

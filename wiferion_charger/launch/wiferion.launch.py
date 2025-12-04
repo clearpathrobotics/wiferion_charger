@@ -65,7 +65,7 @@ def generate_launch_description():
 
     # Wiferion
     wiferion_node = Node(
-        name='wiferion_node',
+        name=['wiferion_node_', charger_id],
         executable='wiferion_node',
         package='wiferion_charger',
         parameters=[{'canbus_dev': canbus_dev}, {'charger_id': charger_id}],
