@@ -525,7 +525,7 @@ public:
 
   WiferionCharger();
   void copyData(std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data);
-  void processMessage(uint32_t id, std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data);
+  void processMessage(uint32_t id, std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data, int charger_id);
   void processFrameData(WiferionCharger::Frame &frame,
       std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data);
 

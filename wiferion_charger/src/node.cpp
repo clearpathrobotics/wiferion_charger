@@ -46,15 +46,19 @@ WiferionNode::WiferionNode(const std::string node_name)
   this->get_parameter("charger_ID", charger_id_);
 
   // Publishers
-  pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>("~/status", 10);
-  pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>("~/error", 10);
-  pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>("~/mobile_state", 10);
+  pubStatus_ = this->create_publisher<wiferion_interfaces::msg::Status>(
+    "~/status" + std::to_string(charger_id_), 10);
+  pubError_ = this->create_publisher<wiferion_interfaces::msg::Error>(
+    "~/error" + std::to_string(charger_id_), 10);
+  pubState_ = this->create_publisher<wiferion_interfaces::msg::MobileState>(
+    "~/mobile_state" + std::to_string(charger_id_), 10);
   pubStatState_ =
-    this->create_publisher<wiferion_interfaces::msg::StationaryState>("~/stationary_state", 10);
+    this->create_publisher<wiferion_interfaces::msg::StationaryState>(
+      "~/stationary_state" + std::to_string(charger_id_), 10);
 
   // Subscribers
   subDisable_ = this->create_subscription<std_msgs::msg::Bool>(
-                  "~/disable_charging",
+                  "~/disable_charging" + std::to_string(charger_id_),
                   10,
                   std::bind(&WiferionNode::subDisableCallback, this, std::placeholders::_1));
 
@@ -77,12 +81,13 @@ WiferionNode::WiferionNode(const std::string node_name)
 
 void WiferionNode::run()
 {
+  int current_charger_id = charger_id_;
   // Process received messages
   while (interface_->recv(recv_msg_))
   {
     if (recv_msg_->dlc == WIFERION_CAN_DATA_LENGTH)
     {
-      wiferion_.processMessage(recv_msg_->id, recv_msg_->data);
+      wiferion_.processMessage(recv_msg_->id, recv_msg_->data, current_charger_id);
     }
   }
   // Charger Status
