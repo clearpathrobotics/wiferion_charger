@@ -52,18 +52,19 @@ WiferionCharger::WiferionCharger()
 }
 
 void WiferionCharger::processMessage(uint32_t id,
-    std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data)
+    std::array<uint8_t, WIFERION_CAN_DATA_LENGTH> data, int charger_id)
 {
   WiferionCharger::Frame * frame = nullptr;
   // Mask the message ID
   int masked_id = id & WIFERION_MOB_ID_MASK;
   int mob_id = id & WIFERION_MOB_LOWER_ID_MASK;
+  int charger_offset = (charger_id & 0x0F) << 8;
 
   // Select appropriate fields to parse
   switch (masked_id)
   {
   case WIFERION_MOB_STATUS_CHARGER_ID:
-    if ((id & 0xFFFF) == WIFERION_MOB_STATUS_CHARGER_LOWER_ID)
+    if ((id & 0xFFFF) == (WIFERION_MOB_STATUS_CHARGER_LOWER_ID + charger_id))
     {
       frame = &charger_status_;
     }
